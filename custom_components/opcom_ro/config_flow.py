@@ -62,6 +62,21 @@ def _num(min_val, max_val, unit, step=1):
     )
 
 
+def _threshold_default(user_input: dict[str, Any], key: str) -> float:
+    """Slider default for an optional price threshold.
+
+    The value is stored as ``None`` when disabled, but a NumberSelector always
+    runs ``vol.Coerce(float)`` on its default — and ``float(None)`` raises
+    "expected float". Show a numeric 0 instead; 0 is treated as "disabled"
+    everywhere else (see OpcomConfig.from_entry), so the semantics are
+    preserved.
+    """
+    val = user_input.get(key)
+    if val in (None, "", 0):
+        return 0
+    return val
+
+
 def build_schema(user_input: dict[str, Any] | None = None) -> vol.Schema:
     """Build the config/options schema, pre-filled from existing entry data."""
     user_input = user_input or {}
@@ -99,10 +114,10 @@ def build_schema(user_input: dict[str, Any] | None = None) -> vol.Schema:
                 CONF_NUM_WINDOWS, default=get(CONF_NUM_WINDOWS, DEFAULT_NUM_WINDOWS)
             ): _num(1, 24, "ferestre"),
             vol.Optional(
-                CONF_LOW_THRESHOLD, default=get(CONF_LOW_THRESHOLD, None)
+                CONF_LOW_THRESHOLD, default=_threshold_default(user_input, CONF_LOW_THRESHOLD)
             ): _num(0, 10000, "lei/MWh"),
             vol.Optional(
-                CONF_HIGH_THRESHOLD, default=get(CONF_HIGH_THRESHOLD, None)
+                CONF_HIGH_THRESHOLD, default=_threshold_default(user_input, CONF_HIGH_THRESHOLD)
             ): _num(0, 10000, "lei/MWh"),
             vol.Required(
                 CONF_PERCENTILE_LOW, default=get(CONF_PERCENTILE_LOW, DEFAULT_PERCENTILE_LOW)
@@ -126,10 +141,10 @@ class OpcomConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.FlowResult:
         if user_input is not None:
-            # Clean empty optional thresholds -> None
-            if user_input.get(CONF_LOW_THRESHOLD) in (None, ""):
+            # 0 / "" / None all mean "threshold disabled" (see OpcomConfig.from_entry).
+            if not user_input.get(CONF_LOW_THRESHOLD):
                 user_input[CONF_LOW_THRESHOLD] = None
-            if user_input.get(CONF_HIGH_THRESHOLD) in (None, ""):
+            if not user_input.get(CONF_HIGH_THRESHOLD):
                 user_input[CONF_HIGH_THRESHOLD] = None
             if not user_input.get(CONF_RESOLUTIONS):
                 return self.async_show_form(
@@ -169,9 +184,9 @@ class OpcomOptionsFlowHandler(config_entries.OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.FlowResult:
         if user_input is not None:
-            if user_input.get(CONF_LOW_THRESHOLD) in (None, ""):
+            if not user_input.get(CONF_LOW_THRESHOLD):
                 user_input[CONF_LOW_THRESHOLD] = None
-            if user_input.get(CONF_HIGH_THRESHOLD) in (None, ""):
+            if not user_input.get(CONF_HIGH_THRESHOLD):
                 user_input[CONF_HIGH_THRESHOLD] = None
             return self.async_create_entry(title="", data=user_input)
 
