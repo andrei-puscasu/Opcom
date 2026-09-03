@@ -24,34 +24,20 @@ from .models import DayResult, Interval
 
 _LOGGER = logging.getLogger(__name__)
 
-# OPCOM sits behind a WAF that rejects bare Python clients (HTTP 403) and
-# has been observed to 403 aiohttp even with a browser User-Agent, while the
-# same URL from a browser/curl succeeds. We send a full browser-like header
-# set (not just the UA) to avoid being fingerprinted as a bot.
-_USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+# OPCOM sits behind an Apache + Laravel stack fronted by an F5 BIG-IP load
+# balancer that bot-fingerprints clients. A bare Python User-Agent gets 403,
+# and so does aiohttp even with a full browser-like header set — because the
+# WAF keys on the TLS/HTTP fingerprint (JA3), not just headers. The freshly
+# published next-day file is gated this way; cached days are lenient.
+#
+# We therefore fetch with ``curl_cffi`` impersonating Chrome, which uses the
+# real libcurl engine and reproduces a browser's TLS handshake. A Referer is
+# the only custom header we add on top of the impersonation.
+_REFERER = (
+    "https://www.opcom.ro/grafice-ip-raportPIP-si-volumTranzactionat/ro"
 )
-
-# Headers a real browser sends when navigating to the CSV export from the
-# OPCOM grafice page. Sent on both the sync and async paths.
-_BROWSER_HEADERS = {
-    "User-Agent": _USER_AGENT,
-    "Accept": (
-        "text/html,application/xhtml+xml,application/xml;q=0.9,"
-        "image/avif,image/webp,*/*;q=0.8"
-    ),
-    "Accept-Language": "ro-RO,ro;q=0.9,en;q=0.8",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Referer": (
-        "https://www.opcom.ro/grafice-ip-raportPIP-si-volumTranzactionat/ro"
-    ),
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "same-origin",
-    "Sec-Fetch-User": "?1",
-    "Upgrade-Insecure-Requests": "1",
-}
+_FETCH_HEADERS = {"Referer": _REFERER}
+_IMPERSONATE = "chrome"  # curl_cffi alias for a recent Chrome TLS profile
 
 # Column-0 markers that announce the per-interval header row (ro / en).
 _INTERVAL_HEADER_MARKERS = ("Zona de tranzactionare", "Trading Zone")
@@ -161,48 +147,49 @@ async def async_fetch_day(
 ) -> DayResult | None:
     """Fetch and parse one delivery day from OPCOM.
 
-    Raises :class:`Exception` on transport errors so the coordinator can apply
-    retry/backoff. Returns ``None`` when the day is not available — either an
-    empty body (not published yet) or an HTTP 403 (WAF/rate-limit; back off).
+    Uses ``curl_cffi`` impersonating Chrome so the F5/Laravel WAF does not
+    fingerprint us as a bot (a plain aiohttp client gets 403 on the freshly
+    published next-day file even with browser headers). Raises on transport
+    errors so the coordinator can retry/backoff. Returns ``None`` when the
+    day is not available — empty body (not published yet) or HTTP 403
+    (WAF refused; back off until the next poll).
     """
-    from homeassistant.helpers.aiohttp_client import async_get_clientsession
+    from curl_cffi import requests as cc_requests
 
-    session = async_get_clientsession(hass)
     url = build_url(delivery_day, lang)
     _LOGGER.debug("Fetching OPCOM CSV: %s", url)
-    async with session.get(url, headers=_BROWSER_HEADERS, timeout=30) as resp:
-        if resp.status == 403:
-            # OPCOM's WAF refused us — observed both for the next-day file
-            # around publication time and as a rate-limit escalation against
-            # the HA server's IP after a burst of requests. Either way the
-            # right move is to back off and let the next poll retry, NOT to
-            # hammer it with retries (which makes an IP block worse).
-            # Returning None marks the day unavailable until the next poll.
-            _LOGGER.warning(
-                "OPCOM returned 403 for %s (WAF/rate-limit); backing off until next poll",
-                delivery_day,
-            )
-            return None
-        resp.raise_for_status()
-        text = await resp.text()
-    return parse_csv(text, delivery_day)
+    async with cc_requests.AsyncSession(impersonate=_IMPERSONATE) as session:
+        resp = await session.get(url, headers=_FETCH_HEADERS, timeout=30)
+
+    if resp.status_code == 403:
+        # WAF refused us. Back off and let the next poll retry — do NOT
+        # hammer it (that is what trips an IP block in the first place).
+        _LOGGER.warning(
+            "OPCOM returned 403 for %s (WAF/fingerprint); backing off until next poll",
+            delivery_day,
+        )
+        return None
+    resp.raise_for_status()
+    return parse_csv(resp.text, delivery_day)
 
 
 # --- Standalone helpers (used by tests / CLI) -----------------------------
 
 def fetch_day_sync(delivery_day: date, lang: str = "ro") -> DayResult | None:
-    """Synchronous fetch using urllib (for local testing outside HA)."""
-    import urllib.request
+    """Synchronous fetch using curl_cffi (for local testing outside HA).
 
-    # urllib does not auto-decompress, so do not advertise gzip/br here
-    # (aiohttp, used in production, does and is unaffected).
-    headers = {k: v for k, v in _BROWSER_HEADERS.items() if k != "Accept-Encoding"}
+    Mirrors the async path so a CLI/test run hits OPCOM with the same Chrome
+    TLS fingerprint as production.
+    """
+    from curl_cffi import requests as cc_requests
+
     url = build_url(delivery_day, lang)
-    req = urllib.request.Request(url, headers=headers)  # noqa: S310
-    with urllib.request.urlopen(req, timeout=30) as resp:  # noqa: S310
-        raw = resp.read()
-    encoding = resp.headers.get_content_charset() or "utf-8"
-    return parse_csv(raw.decode(encoding, errors="replace"), delivery_day)
+    with cc_requests.Session(impersonate=_IMPERSONATE) as session:
+        resp = session.get(url, headers=_FETCH_HEADERS, timeout=30)
+    if resp.status_code == 403:
+        return None
+    resp.raise_for_status()
+    return parse_csv(resp.text, delivery_day)
 
 
 __all__: Iterable[str] = (
