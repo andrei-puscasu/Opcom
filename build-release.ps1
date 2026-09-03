@@ -70,7 +70,7 @@ Copy-Tree `
   (Join-Path $stage "custom_components\opcom_ro")
 
 # root docs -> staging root
-foreach ($doc in @("README.md", "LICENSE", "opcom-guide.html")) {
+foreach ($doc in @("README.md", "LICENSE", "opcom-guide.html", "ghid-instalare.html")) {
   $src = Join-Path $repoRoot $doc
   if (Test-Path $src) {
     Copy-Item $src -Destination (Join-Path $stage $doc) -Force

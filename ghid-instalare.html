@@ -1,0 +1,299 @@
+<title>Ghid instalare OPCOM Romania</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#F7F5F1; --surface:#FFFFFF; --surface-2:#FBF9F5;
+    --ink:#1B1D1F; --muted:#6B6F73; --line:#E4E1DA;
+    --accent:#C8861E; --accent-soft:#F4E6CB;
+    --good:#2E8B7A; --good-soft:#D7ECE7; --bad:#C7522A; --bad-soft:#F4DDD2;
+    --code-bg:#EFEBE3; --code-ink:#2A2620;
+    --shadow:0 1px 2px rgba(27,29,31,.04), 0 8px 24px -12px rgba(27,29,31,.12);
+    --r:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#14161A; --surface:#1C1F24; --surface-2:#21242B;
+      --ink:#ECEAE6; --muted:#9AA0A6; --line:#2A2E35;
+      --accent:#E0A93B; --accent-soft:#3A2E16;
+      --good:#3FB39C; --good-soft:#16302B; --bad:#E0714E; --bad-soft:#3A211A;
+      --code-bg:#232730; --code-ink:#D9D5CC;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14161A; --surface:#1C1F24; --surface-2:#21242B;
+    --ink:#ECEAE6; --muted:#9AA0A6; --line:#2A2E35;
+    --accent:#E0A93B; --accent-soft:#3A2E16;
+    --good:#3FB39C; --good-soft:#16302B; --bad:#E0714E; --bad-soft:#3A211A;
+    --code-bg:#232730; --code-ink:#D9D5CC;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.6;}
+  .wrap{max-width:740px;margin:0 auto;padding:0 24px 96px;}
+  header{padding:56px 0 40px;}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 14px;}
+  .eyebrow .dot{color:var(--accent);}
+  h1{font-family:"Bricolage Grotesque",serif;font-weight:700;font-size:clamp(32px,5.5vw,44px);line-height:1.05;letter-spacing:-.02em;margin:0 0 18px;text-wrap:balance;max-width:18ch;}
+  .lede{font-size:19px;color:var(--muted);margin:0;max-width:56ch;line-height:1.5;}
+  section{padding:40px 0;border-top:1px solid var(--line);}
+  h2{font-family:"Bricolage Grotesque",serif;font-weight:600;font-size:26px;letter-spacing:-.01em;margin:0 0 8px;text-wrap:balance;}
+  section > p{margin:14px 0;}
+  .muted{color:var(--muted);}
+  ol.steps{list-style:none;counter-reset:step;padding:0;margin:22px 0 0;display:grid;gap:14px;}
+  ol.steps > li{counter-increment:step;position:relative;padding:18px 18px 18px 62px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);}
+  ol.steps > li::before{content:counter(step);position:absolute;left:16px;top:18px;width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-family:"Bricolage Grotesque",serif;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;}
+  ol.steps p{margin:.2em 0;}
+  .step-title{font-weight:600;margin:0 0 4px;}
+  .kbd{font-family:"IBM Plex Mono",monospace;font-size:.86em;background:var(--code-bg);color:var(--code-ink);padding:.12em .42em;border-radius:6px;border:1px solid var(--line);}
+  .tabs{display:flex;gap:8px;margin:22px 0 4px;flex-wrap:wrap;}
+  .tab{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:600 14px/1 "Hanken Grotesk",sans-serif;padding:9px 14px;border-radius:999px;cursor:pointer;}
+  .tab[aria-selected="true"]{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
+  .panel{display:none;} .panel.active{display:block;}
+  .callout{background:var(--accent-soft);border-radius:var(--r);padding:16px 18px;margin:22px 0;}
+  .callout .t{font-weight:600;margin:0 0 4px;color:var(--accent);}
+  .callout p{margin:0;font-size:15px;}
+  .warn{background:var(--bad-soft);border-radius:var(--r);padding:16px 18px;margin:22px 0;}
+  .warn .t{font-weight:600;margin:0 0 4px;color:var(--bad);}
+  .warn p{margin:0;font-size:15px;}
+  pre{background:var(--code-bg);color:var(--code-ink);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;overflow-x:auto;margin:18px 0;font-family:"IBM Plex Mono",monospace;font-size:13.5px;line-height:1.6;}
+  pre .c{color:var(--muted);}
+
+  /* HACS dialog mock */
+  .mock{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin:22px 0;}
+  .mock-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surface-2);}
+  .mock-bar .dots{margin-left:auto;color:var(--muted);letter-spacing:2px;}
+  .mock-body{padding:18px;}
+  .mock-body .lbl{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 8px;}
+  .field{display:block;width:100%;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--code-ink);font-family:"IBM Plex Mono",monospace;font-size:13px;margin-bottom:14px;}
+  .row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+  .dropdown{flex:1;min-width:160px;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--code-ink);font-family:"IBM Plex Mono",monospace;font-size:13px;display:flex;justify-content:space-between;align-items:center;}
+  .dropdown .chev{color:var(--muted);}
+  .btn{background:var(--accent);color:#1B1D1F;font-weight:600;border:none;border-radius:8px;padding:10px 18px;font-size:14px;font-family:"Hanken Grotesk",sans-serif;cursor:pointer;}
+  .annot{position:relative;padding-left:26px;margin:10px 0;color:var(--muted);font-size:14.5px;}
+  .annot::before{content:"→";position:absolute;left:0;color:var(--accent);font-weight:700;}
+  .group-label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:26px 0 10px;}
+  details{border-top:1px solid var(--line);padding:14px 0;}
+  details summary{cursor:pointer;font-weight:600;list-style:none;display:flex;gap:10px;align-items:baseline;}
+  details summary::-webkit-details-marker{display:none;}
+  details summary::before{content:"+";color:var(--accent);width:1ch;font-weight:700;}
+  details[open] summary::before{content:"–";}
+  details p{margin:8px 0 2px;color:var(--muted);}
+  footer{margin-top:40px;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px;}
+  a{color:var(--accent);} strong{color:var(--ink);}
+  @media (prefers-reduced-motion: reduce){*{transition:none !important;}}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow"><span class="dot">●</span> Integrare Home Assistant</p>
+    <h1>Prețuri OPCOM Romania — ghid de instalare</h1>
+    <p class="lede">Pași clari, în română, de la legătura pe care ai primit-o până la prima automatizare. Fără cunoștințe tehnice.</p>
+  </header>
+
+  <section>
+    <h2>Ce primești</h2>
+    <p>Integrarea aduce în Home Assistant prețurile zilei curente și ale celei următoare de pe OPCOM (piața de energie din România), plus semnale simple &laquo;încarcă acum&raquo; / &laquo;descarcă acum&raquo; pe care le poți folosi pentru baterie, mașină electrică sau pompă de căldură.</p>
+    <p class="muted">Nu necesită cont, cheie API sau plată. Citește o pagină publică de pe opcom.ro.</p>
+  </section>
+
+  <section>
+    <h2>Înainte să începi</h2>
+    <p>Ai nevoie de <strong>Home Assistant</strong> instalat și funcțional, cu <strong>HACS</strong> — &laquo;magazinul&raquo; de extensii pentru Home Assistant. Dacă nu ai HACS, instalează-l o singură dată de pe <a href="https://www.hacs.xyz/docs/use/" target="_blank" rel="noopener">hacs.xyz</a>.</p>
+    <p>Trebuie să ai de la cine ți-a trimis integrarea o <strong>legătură GitHub</strong> care arată așa:</p>
+    <pre><span class="c"># exemplu — a ta va avea alt nume de utilizator</span>
+https://github.com/nume-utilizator/opcom_ro</pre>
+    <p class="muted">Păstrează linkul la îndemână — îl folosești la pasul 2.</p>
+  </section>
+
+  <section>
+    <h2>Cum instalezi</h2>
+    <p class="muted">Alege varianta care se potrivește cu ce ai primit.</p>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="hacs">Prin HACS (recomandat)</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="zip">Din folder / .zip</button>
+    </div>
+
+    <div class="panel active" id="panel-hacs">
+      <ol class="steps">
+        <li>
+          <p class="step-title">Deschide HACS</p>
+          <p>În meniul din stânga al Home Assistant, apasă pe <strong>HACS</strong>. Vei vedea lista cu extensiile deja instalate (poate e goală).</p>
+        </li>
+        <li>
+          <p class="step-title">Deschide &laquo;Custom repositories&raquo;</p>
+          <p>Sus-dreapta, apasă pe cele <strong>trei puncte ⋮</strong> (butonul de meniu). Din lista care apare, alege <strong>Custom repositories</strong>.</p>
+          <p class="muted">Dacă nu vezi cele trei puncte, înseamnă că HACS nu e complet instalat — vezi hacs.xyz.</p>
+        </li>
+        <li>
+          <p class="step-title">Adaugă legătura GitHub</p>
+          <p>Se deschide o fereastră &laquo;Custom repositories&raquo;. Aici:</p>
+          <p>1) În căsuța de sus, lipește legătura GitHub primită (cea care începe cu <span class="kbd">https://github.com/...</span>).<br>
+          2) La <strong>Category</strong>, alege <strong>Integration</strong> (foarte important — nu Theme, nu Frontend).<br>
+          3) Apasă <strong>ADD</strong>.</p>
+        </li>
+        <li>
+          <p class="step-title">Caută și descarcă</p>
+          <p>Reîncarcă lista (sau scrie &laquo;OPCOM&raquo; în bara de sus). Găsește <strong>OPCOM Romania Prices</strong>, apasă pe el, apoi pe butonul <strong>Download</strong> (jos-dreapta) și confirmă.</p>
+        </li>
+        <li>
+          <p class="step-title">Repornește Home Assistant</p>
+          <p>Settings → System → meniul de sus (trei puncte) → <strong>Restart Home Assistant</strong>. Așteaptă să revină complet (1–2 minute).</p>
+        </li>
+        <li>
+          <p class="step-title">Adaugă integrarea</p>
+          <p>Settings → <strong>Devices &amp; Services</strong> → butonul albastru <strong>Add integration</strong> (jos) → scrie &laquo;OPCOM&raquo; → apasă pe <strong>OPCOM Romania Prices</strong>. Apare formularul de configurare (vezi mai jos).</p>
+        </li>
+      </ol>
+
+      <p class="group-label">Cum arată fereastra &laquo;Custom repositories&raquo;</p>
+      <div class="mock" aria-hidden="true">
+        <div class="mock-bar">
+          <span style="font-weight:700">Custom repositories</span>
+          <span class="dots">⋮</span>
+        </div>
+        <div class="mock-body">
+          <p class="lbl">Repository</p>
+          <span class="field">https://github.com/nume-utilizator/opcom_ro</span>
+          <div class="row">
+            <div style="flex:1">
+              <p class="lbl">Category</p>
+              <div class="dropdown"><span>Integration</span><span class="chev">▾</span></div>
+            </div>
+            <button class="btn">ADD</button>
+          </div>
+        </div>
+      </div>
+      <p class="annot">În căsuța <em>Repository</em> pui linkul GitHub primit.</p>
+      <p class="annot">La <em>Category</em> alegi <strong>Integration</strong> — altfel nu va apărea în lista de integrări.</p>
+      <p class="annot">Apasă <strong>ADD</strong>. Dacă totul e bine, nu apare nicio eroare și noul depozit apare în listă.</p>
+
+      <div class="warn">
+        <p class="t">Cele mai frecvente greșeli la acest pas</p>
+        <p>• Linkul greșit — folosește linkul <em>principal</em> al depozitului (cel care se termină în <span class="kbd">/opcom_ro</span>), nu un link către un fișier, o &laquo;releases&raquo; sau care se termină în <span class="kbd">.git</span>.<br>
+        • Categoria greșită — dacă alegi &laquo;Theme&raquo; sau &laquo;Frontend&raquo;, integrarea NU va apărea unde te aștepți. Trebuie să fie <strong>Integration</strong>.<br>
+        • După ADD, depozitul nu apare? Dă refresh paginii (F5) și caută &laquo;OPCOM&raquo; în bara HACS.</p>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-zip">
+      <ol class="steps">
+        <li>
+          <p class="step-title">Dezarhivează ce ai primit</p>
+          <p>Trebuie să rămâi cu un folder numit <span class="kbd">opcom_ro</span>. (Dacă e un .zip, extrage-l mai întâi.)</p>
+        </li>
+        <li>
+          <p class="step-title">Deschide folderul de configurare</p>
+          <p>Găsește folderul de configurare Home Assistant — cel în care se află fișierul <span class="kbd">configuration.yaml</span>. În el ar trebui să existe un folder <span class="kbd">custom_components</span>; dacă nu există, creează-l.</p>
+        </li>
+        <li>
+          <p class="step-title">Copiază folderul</p>
+          <p>Pune folderul <span class="kbd">opcom_ro</span> <em>în interiorul</em> lui <span class="kbd">custom_components</span>. Calea finală trebuie să fie <span class="kbd">custom_components/opcom_ro/</span>.</p>
+        </li>
+        <li>
+          <p class="step-title">Repornește Home Assistant</p>
+          <p>Settings → System → meniul de sus (trei puncte) → <strong>Restart Home Assistant</strong>.</p>
+        </li>
+        <li>
+          <p class="step-title">Adaugă integrarea</p>
+          <p>Settings → <strong>Devices &amp; Services</strong> → <strong>Add integration</strong> → caută &laquo;OPCOM&raquo; → apasă pe <strong>OPCOM Romania Prices</strong>.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <h2>Configurare</h2>
+    <p>La adăugare apare un formular. Pe scurt, ce înseamnă fiecare câmp:</p>
+    <div class="callout">
+      <p><strong>Monedă</strong> — RON (lei/MWh) sau EUR (EUR/MWh). Alege în ce monedă te gândești.</p>
+    </div>
+    <p><strong>Rezoluții</strong> — cât de fin e datele: 15 / 30 / 60 min. Pentru baterie, 15 min e ideal. Poți alege mai multe.</p>
+    <p><strong>Interval reîmprospătare</strong> — la cât timp să re-verifice OPCOM. 5 min e bun.</p>
+    <p><strong>Durată fereastră &amp; număr ferestre</strong> — partea deșteaptă: &laquo;găsește cele <strong>3</strong> blocuri ieftine de câte <strong>60</strong> min&raquo;. Acelea devin ferestrele de încărcare.</p>
+    <p><strong>Prag preț scăzut / ridicat</strong> — protecții opționale. Ex: încarcă doar dacă prețul e sub 600 lei. Lasă 0 ca să ignore.</p>
+    <p><strong>Percentile</strong> — alt mod de a filtra: &laquo;ieftin&raquo; = cele mai ieftine 25% din zi, &laquo;scump&raquo; = cele mai scumpe 25%.</p>
+    <p class="muted">Schimbi oricând mai târziu: <strong>Devices &amp; Services</strong> → OPCOM Romania → <strong>Configure</strong>.</p>
+  </section>
+
+  <section>
+    <h2>Ce primești în Home Assistant</h2>
+    <p>Apare un dispozitiv <strong>OPCOM Romania</strong> (câte unul pentru fiecare rezoluție aleasă). Sub el:</p>
+    <p><strong>Senzori:</strong> Preț acum, Preț următor, Media astăzi/mâine, Cea mai ieftină/scumpă fereastră astăzi/mâine, Percentila prețului curent.</p>
+    <p><strong>Semnale on/off (pentru automatizări):</strong> Ar trebui să încarc acum (ON = e ieftin), Ar trebui să descarce acum (ON = e scump), Preț sub/peste prag, Ieftin/Scump (percentilă).</p>
+  </section>
+
+  <section>
+    <h2>Prima automatizare</h2>
+    <p>Pornește încărcarea bateriei când e ieftin. Settings → Automations → Create automation → <strong>Edit in YAML</strong>:</p>
+    <pre><span class="c"># Pornește încărcarea când începe o fereastră ieftină</span>
+alias: Baterie incarca la pret ieftin
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.opcom_romania_15_min_should_charge_now
+    to: "on"
+actions:
+  - action: switch.turn_on
+    target:
+      entity_id: switch.bateria_incarcare
+
+<span class="c"># Oprește când se termină fereastra</span>
+alias: Baterie opreste incarcare
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.opcom_romania_15_min_should_charge_now
+    to: "off"
+actions:
+  - action: switch.turn_off
+    target:
+      entity_id: switch.bateria_incarcare</pre>
+    <div class="callout">
+      <p class="t">Despre numele entităților</p>
+      <p>Numele se termină cu rezoluția aleasă — aici <span class="kbd">_15_min</span>. Dacă ai ales 60 min, va fi <span class="kbd">_60_min</span>. Le găsești exact în Devices &amp; Services → OPCOM Romania → dispozitiv → entities.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Ceva nu merge?</h2>
+    <p>Trimite o persoană care te ajută un fișier cu diagnosticul. Două variante:</p>
+    <p class="group-label">Varianta rapidă — fișier de diagnostic</p>
+    <ol class="steps">
+      <li><p class="step-title">Deschide integrarea</p><p>Settings → <strong>Devices &amp; Services</strong> → apasă pe <strong>OPCOM Romania</strong>.</p></li>
+      <li><p class="step-title">Descarcă diagnosticul</p><p>Apasă cele trei puncte <span class="kbd">⋮</span> sus-dreapta → <strong>Download diagnostics</strong>. Se descarcă un fișier <span class="kbd">.json</span>.</p></li>
+      <li><p class="step-title">Trimite-l</p><p>Atașează fișierul în mesaj. Conține setările tale și starea ultimului update, fără date personale.</p></li>
+    </ol>
+    <p class="group-label">Pentru probleme intermitente — jurnal de depanare</p>
+    <ol class="steps">
+      <li><p class="step-title">Pornește jurnalul</p><p>Configure → activează <strong>Enable debug log file</strong> → salvează (se reîncarcă).</p></li>
+      <li><p class="step-title">Curăță</p><p>Pe dispozitivul OPCOM Romania apasă butonul <strong>Șterge jurnal de depanare</strong> ca să prinți doar reîncercarea.</p></li>
+      <li><p class="step-title">Reproduce problema</p><p>Folosește integrarea sau apasă <strong>Reîmprospătează acum</strong>. Așteaptă un minut.</p></li>
+      <li><p class="step-title">Ia fișierul</p><p>Fișierul e <span class="kbd">opcom_ro_debug.log</span> în folderul de configurare (unde e <span class="kbd">configuration.yaml</span>). Deschide-l cu File editor sau copiază-l prin Samba/SSH și trimite-l.</p></li>
+      <li><p class="step-title">Oprește-l când ai terminat</p><p>Întoarce-te la Configure și dezactivează <strong>Enable debug log file</strong>.</p></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Întrebări frecvente</h2>
+    <details><summary>Prețurile de mâine lipsesc / scrie &laquo;unavailable&raquo;</summary><p>Normal. OPCOM publică prețurile pentru ziua următoare între ~13:00 și 15:00 (ora României). Până atunci senzorii de mâine sunt indisponibili — se vor umple după-amiaza.</p></details>
+    <details><summary>Prețurile sunt în lei sau euro?</summary><p>Ce ai ales la configurare. RON = lei/MWh (sursa română). EUR = EUR/MWh (sursa engleză). Ambele vin direct de pe OPCOM.</p></details>
+    <details><summary>&laquo;Ar trebui să încarc&raquo; și &laquo;Ar trebui să descarce&raquo; sunt ambele pornite</summary><p>Ai acoperit prea multe ore. Dacă &laquo;durată fereastră × număr ferestre&raquo; se apropie de 24h, blocurile ieftine și scumpe se suprapun. Micșorează numărul de ferestre sau durata.</p></details>
+    <details><summary>Pot schimba setările mai târziu?</summary><p>Da. Settings → Devices &amp; Services → OPCOM Romania → Configure. La salvare, integrarea se reîncarcă singură.</p></details>
+  </section>
+
+  <footer>
+    <p>OPCOM Romania Prices — liber și open source (MIT). Citește doar exportul public OPCOM. Datele de preț sunt © OPCOM. Acest ghid se poate partaja — trimite linkul oricui instalezi.</p>
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll(".tab").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const id=btn.dataset.tab;
+      document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",String(b===btn)));
+      document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id==="panel-"+id));
+    });
+  });
+</script>
