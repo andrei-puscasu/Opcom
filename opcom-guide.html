@@ -1,0 +1,439 @@
+<title>OPCOM Romania Setup Guide</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#F7F5F1; --surface:#FFFFFF; --surface-2:#FBF9F5;
+    --ink:#1B1D1F; --muted:#6B6F73; --line:#E4E1DA;
+    --accent:#C8861E; --accent-soft:#F4E6CB;
+    --good:#2E8B7A; --good-soft:#D7ECE7; --bad:#C7522A; --bad-soft:#F4DDD2;
+    --code-bg:#EFEBE3; --code-ink:#2A2620;
+    --shadow:0 1px 2px rgba(27,29,31,.04), 0 8px 24px -12px rgba(27,29,31,.12);
+    --r:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#14161A; --surface:#1C1F24; --surface-2:#21242B;
+      --ink:#ECEAE6; --muted:#9AA0A6; --line:#2A2E35;
+      --accent:#E0A93B; --accent-soft:#3A2E16;
+      --good:#3FB39C; --good-soft:#16302B; --bad:#E0714E; --bad-soft:#3A211A;
+      --code-bg:#232730; --code-ink:#D9D5CC;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14161A; --surface:#1C1F24; --surface-2:#21242B;
+    --ink:#ECEAE6; --muted:#9AA0A6; --line:#2A2E35;
+    --accent:#E0A93B; --accent-soft:#3A2E16;
+    --good:#3FB39C; --good-soft:#16302B; --bad:#E0714E; --bad-soft:#3A211A;
+    --code-bg:#232730; --code-ink:#D9D5CC;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  html{ -webkit-text-size-adjust:100% }
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size:17px; line-height:1.6;
+    font-feature-settings:"ss01";
+  }
+  .wrap{ max-width:720px; margin:0 auto; padding:0 24px 96px; }
+
+  /* Header */
+  header{ padding:56px 0 40px; }
+  .eyebrow{
+    font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--muted); font-weight:600; margin:0 0 14px;
+  }
+  .eyebrow .dot{ color:var(--accent); }
+  h1{
+    font-family:"Bricolage Grotesque", serif;
+    font-weight:700; font-size:clamp(34px, 6vw, 46px); line-height:1.04;
+    letter-spacing:-.02em; margin:0 0 18px; text-wrap:balance;
+    max-width:16ch;
+  }
+  .lede{ font-size:19px; color:var(--muted); margin:0; max-width:54ch; line-height:1.5; }
+  .curve{ margin-top:28px; display:block; width:100%; height:54px; }
+
+  /* Sections */
+  section{ padding:40px 0; border-top:1px solid var(--line); }
+  h2{
+    font-family:"Bricolage Grotesque", serif; font-weight:600;
+    font-size:26px; letter-spacing:-.01em; margin:0 0 8px; text-wrap:balance;
+  }
+  section > p{ margin:14px 0; color:var(--ink); }
+  section > p.muted{ color:var(--muted); }
+  .lead-note{ color:var(--muted); }
+
+  /* Steps */
+  ol.steps{ list-style:none; counter-reset:step; padding:0; margin:22px 0 0; display:grid; gap:14px; }
+  ol.steps > li{
+    counter-increment:step; position:relative; padding:18px 18px 18px 60px;
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+    box-shadow:var(--shadow);
+  }
+  ol.steps > li::before{
+    content:counter(step); position:absolute; left:16px; top:18px;
+    width:30px; height:30px; border-radius:50%;
+    background:var(--accent-soft); color:var(--accent);
+    font-family:"Bricolage Grotesque", serif; font-weight:700; font-size:16px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  ol.steps p{ margin:.2em 0; }
+  ol.steps .step-title{ font-weight:600; margin:0 0 4px; }
+  .kbd{
+    font-family:"IBM Plex Mono", monospace; font-size:.86em;
+    background:var(--code-bg); color:var(--code-ink);
+    padding:.12em .42em; border-radius:6px; border:1px solid var(--line);
+  }
+
+  /* Two-column switch for install methods */
+  .tabs{ display:flex; gap:8px; margin:22px 0 4px; flex-wrap:wrap; }
+  .tab{
+    appearance:none; border:1px solid var(--line); background:var(--surface);
+    color:var(--muted); font:600 14px/1 "Hanken Grotesk",sans-serif;
+    padding:9px 14px; border-radius:999px; cursor:pointer;
+  }
+  .tab[aria-selected="true"]{ color:var(--accent); border-color:var(--accent); background:var(--accent-soft); }
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+
+  /* Sensor cards */
+  .cards{ display:grid; gap:12px; margin:22px 0 0; }
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+    padding:16px 18px; box-shadow:var(--shadow);
+  }
+  .card .name{ font-weight:600; display:flex; align-items:center; gap:10px; margin:0 0 4px; }
+  .chip{
+    font-size:11px; font-weight:600; letter-spacing:.02em;
+    padding:3px 9px; border-radius:999px; white-space:nowrap;
+  }
+  .chip.cheap{ background:var(--good-soft); color:var(--good); }
+  .chip.expensive{ background:var(--bad-soft); color:var(--bad); }
+  .chip.info{ background:var(--accent-soft); color:var(--accent); }
+  .card p{ margin:0; color:var(--muted); font-size:15px; }
+
+  .group-label{
+    font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--muted); font-weight:600; margin:26px 0 10px;
+  }
+
+  /* Code */
+  pre{
+    background:var(--code-bg); color:var(--code-ink);
+    border:1px solid var(--line); border-radius:var(--r);
+    padding:16px 18px; overflow-x:auto; margin:18px 0;
+    font-family:"IBM Plex Mono", monospace; font-size:13.5px; line-height:1.6;
+    font-variant-numeric:tabular-nums;
+  }
+  pre .c{ color:var(--muted); }
+
+  /* Callout */
+  .callout{
+    background:var(--accent-soft); border:1px solid transparent;
+    border-radius:var(--r); padding:16px 18px; margin:22px 0;
+  }
+  .callout .t{ font-weight:600; margin:0 0 4px; color:var(--accent); }
+  .callout p{ margin:0; color:var(--ink); font-size:15px; }
+
+  /* FAQ */
+  details{ border-top:1px solid var(--line); padding:14px 0; }
+  details summary{
+    cursor:pointer; font-weight:600; list-style:none; margin:0;
+    display:flex; gap:10px; align-items:baseline;
+  }
+  details summary::-webkit-details-marker{ display:none; }
+  details summary::before{ content:"+"; color:var(--accent); width:1ch; font-weight:700; }
+  details[open] summary::before{ content:"–"; }
+  details p{ margin:8px 0 2px; color:var(--muted); }
+
+  footer{ margin-top:40px; padding-top:24px; border-top:1px solid var(--line);
+    color:var(--muted); font-size:13.5px; }
+
+  a{ color:var(--accent); }
+  .quiet{ color:var(--muted); }
+  strong{ color:var(--ink); }
+
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow"><span class="dot">●</span> Home Assistant integration</p>
+    <h1>OPCOM Romania prices, made simple.</h1>
+    <p class="lede">See tomorrow's electricity prices today, and let your battery, EV or heat pump run when power is cheap. This guide takes you from install to your first automation — no technical background needed.</p>
+    <svg class="curve" viewBox="0 0 720 54" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 20 H60 L90 38 L150 30 L210 40 L270 46 L300 14 L360 8 L390 30 L450 36 L510 22 L570 12 L630 28 L720 34"
+        fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.35"/>
+      <circle cx="300" cy="14" r="3.5" fill="var(--good)" opacity="0.9"/>
+      <circle cx="570" cy="12" r="3.5" fill="var(--bad)" opacity="0.9"/>
+    </svg>
+  </header>
+
+  <section>
+    <h2>What it actually does</h2>
+    <p>OPCOM is Romania's power market. Every day around <strong>2&nbsp;pm</strong> it publishes the electricity prices for the next day, in 15-minute slices. This integration reads those prices and brings them into Home Assistant.</p>
+    <p>You get the price <strong>right now</strong>, the <strong>cheapest</strong> and <strong>most expensive</strong> hours of the day, and simple on/off signals you can plug into automations — like &laquo;should charge now&raquo; that turns on only during the cheapest blocks you chose.</p>
+    <p class="lead-note">No accounts, no license keys, nothing to pay. It reads a public page on opcom.ro.</p>
+  </section>
+
+  <section>
+    <h2>Before you start</h2>
+    <p>You need <strong>Home Assistant</strong> up and running, with <strong>HACS</strong> installed (HACS is the &laquo;app store&raquo; for Home Assistant add-ons). If you don't have HACS yet, follow <a href="https://www.hacs.xyz/docs/use/" target="_blank" rel="noopener">hacs.xyz</a> first — it's a one-time setup.</p>
+  </section>
+
+  <section>
+    <h2>Install it</h2>
+    <p class="muted">Pick the way that matches how you received it.</p>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="hacs">From HACS (recommended)</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="zip">From a folder / .zip</button>
+    </div>
+
+    <div class="panel active" id="panel-hacs">
+      <ol class="steps">
+        <li>
+          <p class="step-title">Copy the link</p>
+          <p>Get the GitHub link from whoever shared it with you (something like <span class="kbd">github.com/…/opcom_ro</span>).</p>
+        </li>
+        <li>
+          <p class="step-title">Add it to HACS</p>
+          <p>Open Home Assistant → <strong>HACS</strong> → the three dots (top right) → <strong>Custom repositories</strong>. Paste the link, set <em>Category</em> to <strong>Integration</strong>, click <strong>Add</strong>.</p>
+        </li>
+        <li>
+          <p class="step-title">Install</p>
+          <p>Back in HACS, search <strong>OPCOM Romania</strong>, open it, click <strong>Download</strong>.</p>
+        </li>
+        <li>
+          <p class="step-title">Restart Home Assistant</p>
+          <p>Settings → System → top-right menu → <strong>Restart Home Assistant</strong>. Wait for it to come back.</p>
+        </li>
+        <li>
+          <p class="step-title">Add the integration</p>
+          <p>Settings → <strong>Devices &amp; Services</strong> → <strong>Add integration</strong> → search <strong>OPCOM Romania</strong> → click it.</p>
+        </li>
+      </ol>
+    </div>
+
+    <div class="panel" id="panel-zip">
+      <ol class="steps">
+        <li>
+          <p class="step-title">Unzip what you received</p>
+          <p>You should have a folder named <span class="kbd">opcom_ro</span>. (If it's a .zip, extract it first.)</p>
+        </li>
+        <li>
+          <p class="step-title">Open your config folder</p>
+          <p>Find your Home Assistant config folder — the same place your <span class="kbd">configuration.yaml</span> lives. Inside it there should be a <span class="kbd">custom_components</span> folder; if not, create one.</p>
+        </li>
+        <li>
+          <p class="step-title">Copy the folder in</p>
+          <p>Put the <span class="kbd">opcom_ro</span> folder <em>inside</em> <span class="kbd">custom_components</span>. So the path looks like <span class="kbd">custom_components/opcom_ro/</span>.</p>
+        </li>
+        <li>
+          <p class="step-title">Restart Home Assistant</p>
+          <p>Settings → System → top-right menu → <strong>Restart Home Assistant</strong>.</p>
+        </li>
+        <li>
+          <p class="step-title">Add the integration</p>
+          <p>Settings → <strong>Devices &amp; Services</strong> → <strong>Add integration</strong> → search <strong>OPCOM Romania</strong> → click it.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <h2>Set it up</h2>
+    <p>When you add the integration, a form appears. Here's what each option means in plain language:</p>
+
+    <div class="cards">
+      <div class="card">
+        <p class="name">Currency</p>
+        <p><strong>RON</strong> = prices in lei/MWh (from the Romanian page). <strong>EUR</strong> = prices in euro/MWh. Pick what you think in.</p>
+      </div>
+      <div class="card">
+        <p class="name">Resolutions</p>
+        <p>How fine-grained the data is: <strong>15 / 30 / 60 min</strong>. For battery automations, 15&nbsp;min is best. For a quick glance, 60&nbsp;min is enough. You can pick more than one — each creates its own set of sensors.</p>
+      </div>
+      <div class="card">
+        <p class="name">Refresh interval</p>
+        <p>How often to re-check OPCOM. <strong>5&nbsp;min</strong> is a good default. Prices only change once a day, but this keeps the &laquo;current price&raquo; fresh.</p>
+      </div>
+      <div class="card">
+        <p class="name">Window duration &amp; number of windows</p>
+        <p>This is the smart part. &laquo;Find the <strong>3 cheapest blocks of 60&nbsp;min</strong>&raquo; means it scans the whole day and picks the three cheapest non-overlapping hours — those become your &laquo;charge now&raquo; windows.</p>
+      </div>
+      <div class="card">
+        <p class="name">Low / high price threshold <span class="chip info">optional</span></p>
+        <p>Extra guard rails. For example, only allow charging when price is <em>also</em> below 600&nbsp;lei. Leave at 0 to ignore.</p>
+      </div>
+      <div class="card">
+        <p class="name">Cheap / expensive percentile</p>
+        <p>Another way to gate: &laquo;cheap&raquo; = the cheapest 25% of the day, &laquo;expensive&raquo; = the top 25%. You can change the percentages.</p>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:18px">You can change any of this later: <strong>Devices &amp; Services</strong> → OPCOM Romania → <strong>Configure</strong>.</p>
+  </section>
+
+  <section>
+    <h2>What you get</h2>
+    <p>After setup, a device named <strong>OPCOM Romania</strong> appears (one per resolution). Under it:
+
+    <p class="group-label">Price sensors</p>
+    <div class="cards">
+      <div class="card"><p class="name">Price now</p><p>The price of the current slice. Tap it to see the whole day's curve as a list.</p></div>
+      <div class="card"><p class="name">Next price</p><p>What the price becomes in the next slice — handy to see a jump coming.</p></div>
+      <div class="card"><p class="name">Average today / tomorrow</p><p>The day's average price, plus OPCOM's Base/Peak/Off-Peak figures.</p></div>
+      <div class="card"><p class="name">Cheapest window today <span class="chip cheap">charge</span></p><p>The best block to consume. Its details list all the windows it found.</p></div>
+      <div class="card"><p class="name">Most expensive window today <span class="chip expensive">discharge</span></p><p>The best block to export/sell back to the grid.</p></div>
+      <div class="card"><p class="name">Cheapest / most expensive tomorrow</p><p>Same, for tomorrow — appears after OPCOM publishes (~2&nbsp;pm).</p></div>
+      <div class="card"><p class="name">Current price percentile</p><p>Where today's price sits: 0% = cheapest moment, 100% = priciest.</p></div>
+    </div>
+
+    <p class="group-label">On/off signals (for automations)</p>
+    <div class="cards">
+      <div class="card"><p class="name">Should charge now <span class="chip cheap">ON = cheap</span></p><p>Turns <strong>on</strong> when you're inside one of the cheapest windows (and below your threshold, if set). This is the one you wire to your battery/EV.</p></div>
+      <div class="card"><p class="name">Should discharge now <span class="chip expensive">ON = pricey</span></p><p>Turns <strong>on</strong> during the most expensive windows — export/sell power.</p></div>
+      <div class="card"><p class="name">Price below / above threshold</p><p>Simple on/off by a fixed price. Only appears if you set a threshold.</p></div>
+      <div class="card"><p class="name">Cheap / expensive (percentile)</p><p>On when the current price is in the cheapest or priciest slice of the day.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Make it do something</h2>
+    <p>Here's the payoff: turn things on only when power is cheap. Create these under <strong>Settings → Automations</strong> → Create automation → <strong>Edit in YAML</strong>.</p>
+
+    <p class="group-label" style="margin-top:24px">Charge a battery when power is cheap</p>
+    <pre><span class="c"># Start charging when the cheap window opens</span>
+alias: Battery charge on cheap power
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.opcom_romania_15_min_should_charge_now
+    to: "on"
+actions:
+  - action: switch.turn_on
+    target:
+      entity_id: switch.battery_charge
+
+<span class="c"># And stop when the window closes</span>
+alias: Battery stop charging
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.opcom_romania_15_min_should_charge_now
+    to: "off"
+actions:
+  - action: switch.turn_off
+    target:
+      entity_id: switch.battery_charge</pre>
+
+    <p class="group-label">Show the price curve on your dashboard</p>
+    <p>If you use the <a href="https://github.com/RomRider/apexcharts-card" target="_blank" rel="noopener">ApexCharts card</a>, add this to a dashboard card:</p>
+    <pre>type: custom:apexcharts-card
+header:
+  show: true
+  title: OPCOM prices today
+series:
+  - entity: sensor.opcom_romania_15_min_current_price
+    attribute: prices
+    type: column</pre>
+
+    <div class="callout">
+      <p class="t">A note on entity names</p>
+      <p>The exact names end with the resolution you picked (here <span class="kbd">_15_min</span>). If you chose 60&nbsp;min, it'll be <span class="kbd">_60_min</span>. Find yours under <strong>Devices &amp; Services</strong> → OPCOM Romania → the device → entities.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Something went wrong?</h2>
+    <p>If a price is missing or a sensor stays unavailable, you can send a file to whoever helps you with this integration. There are two ways — start with the first.</p>
+
+    <p class="group-label">Quick — the diagnostics file <span class="chip info">one click</span></p>
+    <p>This is a snapshot of what the integration currently sees. It's a small JSON file with no personal data.</p>
+    <ol class="steps">
+      <li>
+        <p class="step-title">Open the integration</p>
+        <p>Settings → <strong>Devices &amp; Services</strong> → click <strong>OPCOM Romania</strong>.</p>
+      </li>
+      <li>
+        <p class="step-title">Download diagnostics</p>
+        <p>Click the three dots <span class="kbd">⋮</span> top-right of the entry card → <strong>Download diagnostics</strong>. A <span class="kbd">.json</span> file downloads.</p>
+      </li>
+      <li>
+        <p class="step-title">Send it</p>
+        <p>Attach that file in your message. It contains your settings, whether the last update worked, and a summary of today's/tomorrow's prices.</p>
+      </li>
+    </ol>
+
+    <p class="group-label" style="margin-top:30px">Deeper — the debug log file <span class="chip info">for intermittent issues</span></p>
+    <p>If the problem comes and goes, turn on the debug log so every fetch is recorded to a file you can share.</p>
+    <ol class="steps">
+      <li>
+        <p class="step-title">Turn on the debug log</p>
+        <p>Devices &amp; Services → OPCOM Romania → <strong>Configure</strong> → switch on <strong>Enable debug log file</strong> → save. The integration reloads.</p>
+      </li>
+      <li>
+        <p class="step-title">Start fresh</p>
+        <p>Find the <strong>OPCOM Romania</strong> device → press the <strong>Clear debug log</strong> button. This empties the log so it only contains your next attempt.</p>
+      </li>
+      <li>
+        <p class="step-title">Reproduce the issue</p>
+        <p>Use the integration as normal, or press <strong>Refresh now</strong> to force an immediate fetch. Wait a minute or two.</p>
+      </li>
+      <li>
+        <p class="step-title">Grab the file</p>
+        <p>The log is at <span class="kbd">opcom_ro_debug.log</span> in your Home Assistant config folder (the folder with <span class="kbd">configuration.yaml</span>). Open it with the <strong>File editor</strong> add-on, or copy it out via Samba/SSH, and send it.</p>
+      </li>
+      <li>
+        <p class="step-title">Turn it off when done</p>
+        <p>Go back to Configure and switch <strong>Enable debug log file</strong> off so it stops writing.</p>
+      </li>
+    </ol>
+
+    <div class="callout">
+      <p class="t">What's in the log?</p>
+      <p>Only fetch events: which day it asked for, whether it succeeded, how many prices came back, and any error text. No personal data, no secrets — prices are public.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Good to know</h2>
+    <details>
+      <summary>Tomorrow's prices are missing / say &laquo;unavailable&raquo;</summary>
+      <p>Normal. OPCOM publishes next-day prices between ~1&nbsp;pm and 3&nbsp;pm Romania time. Before that, tomorrow's sensors are unavailable. They'll fill in by mid-afternoon.</p>
+    </details>
+    <details>
+      <summary>Are the prices in lei or euro?</summary>
+      <p>Whichever you picked at setup. RON = lei/MWh (Romanian source). EUR = euro/MWh (English source). Both come straight from OPCOM.</p>
+    </details>
+    <details>
+      <summary>What timezone does it use?</summary>
+      <p>Romania's (Europe/Bucharest). So &laquo;current price&raquo; always matches the Romanian delivery day, even if your Home Assistant runs in another timezone.</p>
+    </details>
+    <details>
+      <summary>&laquo;Should charge&raquo; and &laquo;should discharge&raquo; are both on at once</summary>
+      <p>You've covered too many hours. If &laquo;window duration &times; number of windows&raquo; gets close to 24&nbsp;h, the cheap and expensive blocks start overlapping. Reduce the number of windows or the window length.</p>
+    </details>
+    <details>
+      <summary>Can I change settings later?</summary>
+      <p>Yes. Settings → Devices &amp; Services → OPCOM Romania → Configure. Changing options reloads the integration automatically.</p>
+    </details>
+  </section>
+
+  <footer>
+    <p>OPCOM Romania Prices — free and open source (MIT). Reads only the public OPCOM export. Price data is © OPCOM. This guide is shareable — send the link to anyone you set up.</p>
+  </footer>
+
+</div>
+
+<script>
+  // Install-method tab switch
+  document.querySelectorAll(".tab").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const id=btn.dataset.tab;
+      document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected", String(b===btn)));
+      document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active", p.id==="panel-"+id));
+    });
+  });
+</script>

@@ -1,0 +1,72 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "OPCOM România - Prețuri",
+        "description": "Prețuri ziua-următoare (PZU) de pe opcom.ro, cu ferestre optime de încărcare/descărcare pentru automatizări de baterii și VE.",
+        "data": {
+          "currency": "Monedă / unitate de preț",
+          "resolutions": "Rezoluții",
+          "refresh_interval": "Interval reîmprospătare (minute)",
+          "window_minutes": "Durată fereastră (minute)",
+          "num_windows": "Număr ferestre optime",
+          "low_threshold": "Prag preț scăzut (poartă import)",
+          "high_threshold": "Prag preț ridicat (poartă export)",
+          "percentile_low": "Percentilă preț ieftin (%)",
+          "percentile_high": "Percentilă preț scump (%)",
+          "enable_debug_log": "Activează fișier jurnal de depanare"
+        }
+      }
+    },
+    "error": {
+      "no_resolutions": "Selectează cel puțin o rezoluție."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opțiuni OPCOM România",
+        "data": {
+          "currency": "Monedă / unitate de preț",
+          "resolutions": "Rezoluții",
+          "refresh_interval": "Interval reîmprospătare (minute)",
+          "window_minutes": "Durată fereastră (minute)",
+          "num_windows": "Număr ferestre optime",
+          "low_threshold": "Prag preț scăzut (poartă import)",
+          "high_threshold": "Prag preț ridicat (poartă export)",
+          "percentile_low": "Percentilă preț ieftin (%)",
+          "percentile_high": "Percentilă preț scump (%)",
+          "enable_debug_log": "Activează fișier jurnal de depanare"
+        }
+      }
+    },
+    "error": {
+      "no_resolutions": "Selectează cel puțin o rezoluție."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current_price": { "name": "Preț acum" },
+      "next_price": { "name": "Preț următor" },
+      "average_today": { "name": "Media astăzi" },
+      "average_tomorrow": { "name": "Media mâine" },
+      "cheapest_today": { "name": "Cea mai ieftină fereastră azi" },
+      "expensive_today": { "name": "Cea mai scumpă fereastră azi" },
+      "cheapest_tomorrow": { "name": "Cea mai ieftină fereastră mâine" },
+      "expensive_tomorrow": { "name": "Cea mai scumpă fereastră mâine" },
+      "percentile_now": { "name": "Percentila prețului curent" }
+    },
+    "binary_sensor": {
+      "should_charge_now": { "name": "Ar trebui să încarce acum" },
+      "should_discharge_now": { "name": "Ar trebui să descarce acum" },
+      "price_below_threshold": { "name": "Preț sub prag" },
+      "price_above_threshold": { "name": "Preț peste prag" },
+      "cheap_percentile_now": { "name": "Preț ieftin (percentilă)" },
+      "expensive_percentile_now": { "name": "Preț scump (percentilă)" }
+    },
+    "button": {
+      "clear_debug_log": { "name": "Șterge jurnal de depanare" },
+      "refresh_now": { "name": "Reîmprospătează acum" }
+    }
+  }
+}

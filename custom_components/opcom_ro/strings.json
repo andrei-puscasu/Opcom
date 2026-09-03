@@ -1,0 +1,72 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "OPCOM Romania Prices",
+        "description": "Day-ahead electricity prices (PZU) from opcom.ro, with optimal charge/discharge windows for battery and EV automations.",
+        "data": {
+          "currency": "Currency / price unit",
+          "resolutions": "Resolutions",
+          "refresh_interval": "Refresh interval (minutes)",
+          "window_minutes": "Window duration (minutes)",
+          "num_windows": "Number of optimal windows",
+          "low_threshold": "Low price threshold (import gate)",
+          "high_threshold": "High price threshold (export gate)",
+          "percentile_low": "Cheap percentile (%)",
+          "percentile_high": "Expensive percentile (%)",
+          "enable_debug_log": "Enable debug log file"
+        }
+      }
+    },
+    "error": {
+      "no_resolutions": "Select at least one resolution."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "OPCOM Romania options",
+        "data": {
+          "currency": "Currency / price unit",
+          "resolutions": "Resolutions",
+          "refresh_interval": "Refresh interval (minutes)",
+          "window_minutes": "Window duration (minutes)",
+          "num_windows": "Number of optimal windows",
+          "low_threshold": "Low price threshold (import gate)",
+          "high_threshold": "High price threshold (export gate)",
+          "percentile_low": "Cheap percentile (%)",
+          "percentile_high": "Expensive percentile (%)",
+          "enable_debug_log": "Enable debug log file"
+        }
+      }
+    },
+    "error": {
+      "no_resolutions": "Select at least one resolution."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current_price": { "name": "Price now" },
+      "next_price": { "name": "Next price" },
+      "average_today": { "name": "Average today" },
+      "average_tomorrow": { "name": "Average tomorrow" },
+      "cheapest_today": { "name": "Cheapest window today" },
+      "expensive_today": { "name": "Most expensive window today" },
+      "cheapest_tomorrow": { "name": "Cheapest window tomorrow" },
+      "expensive_tomorrow": { "name": "Most expensive window tomorrow" },
+      "percentile_now": { "name": "Current price percentile" }
+    },
+    "binary_sensor": {
+      "should_charge_now": { "name": "Should charge now" },
+      "should_discharge_now": { "name": "Should discharge now" },
+      "price_below_threshold": { "name": "Price below threshold" },
+      "price_above_threshold": { "name": "Price above threshold" },
+      "cheap_percentile_now": { "name": "Cheap price (percentile)" },
+      "expensive_percentile_now": { "name": "Expensive price (percentile)" }
+    },
+    "button": {
+      "clear_debug_log": { "name": "Clear debug log" },
+      "refresh_now": { "name": "Refresh now" }
+    }
+  }
+}

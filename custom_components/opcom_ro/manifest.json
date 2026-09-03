@@ -1,0 +1,13 @@
+{
+  "domain": "opcom_ro",
+  "name": "OPCOM Romania Prices",
+  "version": "1.0.0",
+  "config_flow": true,
+  "documentation": "https://github.com/puscasu/opcom_ro",
+  "issue_tracker": "https://github.com/puscasu/opcom_ro/issues",
+  "codeowners": ["@puscasu"],
+  "iot_class": "cloud_polling",
+  "loggers": ["opcom_ro"],
+  "dependencies": [],
+  "requirements": []
+}
