@@ -19,6 +19,13 @@ import logging
 from datetime import date, datetime, timedelta
 from typing import Iterable
 
+# Imported at module level (not lazily inside the fetch coroutine) so the
+# blocking-call detector does not flag it as I/O in the event loop, and so
+# the C extension loads once at integration load rather than on every poll.
+# curl_cffi impersonates Chrome's TLS handshake; OPCOM's F5/Laravel WAF
+# fingerprint-blocks aiohttp on the freshly published next-day file.
+from curl_cffi import requests as cc_requests
+
 from .const import MARKET_TZ, OPCOM_URL_TEMPLATE
 from .models import DayResult, Interval
 
@@ -154,8 +161,6 @@ async def async_fetch_day(
     day is not available — empty body (not published yet) or HTTP 403
     (WAF refused; back off until the next poll).
     """
-    from curl_cffi import requests as cc_requests
-
     url = build_url(delivery_day, lang)
     _LOGGER.debug("Fetching OPCOM CSV: %s", url)
     async with cc_requests.AsyncSession(impersonate=_IMPERSONATE) as session:
@@ -181,8 +186,6 @@ def fetch_day_sync(delivery_day: date, lang: str = "ro") -> DayResult | None:
     Mirrors the async path so a CLI/test run hits OPCOM with the same Chrome
     TLS fingerprint as production.
     """
-    from curl_cffi import requests as cc_requests
-
     url = build_url(delivery_day, lang)
     with cc_requests.Session(impersonate=_IMPERSONATE) as session:
         resp = session.get(url, headers=_FETCH_HEADERS, timeout=30)
