@@ -1,7 +1,7 @@
 {
   "domain": "opcom_ro",
   "name": "OPCOM Romania Prices",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "config_flow": true,
   "documentation": "https://github.com/andrei-puscasu/Opcom",
   "issue_tracker": "https://github.com/andrei-puscasu/Opcom/issues",

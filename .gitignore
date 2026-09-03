@@ -10,3 +10,5 @@ venv/
 
 # build output
 dist/
+# local HA dev container config
+ha-config/
