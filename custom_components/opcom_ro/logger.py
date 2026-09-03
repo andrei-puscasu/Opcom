@@ -60,7 +60,7 @@ class OpcomFileLogger:
             except OSError as exc:
                 _LOGGER.error("Could not write OPCOM debug log: %s", exc)
 
-        self.hass.add_executor_job(_write)
+        self.hass.async_add_executor_job(_write)
 
     def clear(self) -> None:
         """Delete the debug log files so the user can capture a clean run."""
@@ -73,7 +73,7 @@ class OpcomFileLogger:
                 except OSError as exc:
                     _LOGGER.warning("Could not remove %s: %s", p, exc)
 
-        self.hass.add_executor_job(_clear)
+        self.hass.async_add_executor_job(_clear)
         self.log("info", "OPCOM debug log cleared by user")
 
     def _rollover(self) -> None:
