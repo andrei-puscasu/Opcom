@@ -1,13 +1,13 @@
 {
-  "domain": "opcom_ro",
-  "name": "OPCOM Romania Prices",
-  "version": "1.1.0",
+  "domain": "yellowgrid",
+  "name": "YellowGrid Romania Prices",
+  "version": "1.0.0",
   "config_flow": true,
   "documentation": "https://github.com/andrei-puscasu/Opcom",
   "issue_tracker": "https://github.com/andrei-puscasu/Opcom/issues",
   "codeowners": ["@andrei-puscasu"],
   "iot_class": "cloud_polling",
-  "loggers": ["opcom_ro"],
+  "loggers": ["yellowgrid"],
   "dependencies": [],
   "requirements": ["curl_cffi>=0.7.0"]
 }

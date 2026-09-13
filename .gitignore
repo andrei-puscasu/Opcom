@@ -10,5 +10,12 @@ venv/
 
 # build output
 dist/
-# local HA dev container config
+
+# local HA dev container config (contains real HA secrets)
 ha-config/
+
+# local reverse-engineering / debug secrets — never commit
+.yg_token
+.yg_token.*
+.yg_device
+yellowgrid_token*.txt

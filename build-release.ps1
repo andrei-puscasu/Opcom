@@ -4,14 +4,16 @@
 
 .DESCRIPTION
   Builds a clean zip ready to share with users:
-    custom_components/opcom_ro/   the integration (no __pycache__ / .pyc)
-    README.md, LICENSE, opcom-guide.html   docs at the zip root
+    custom_components/opcom_ro/     OPCOM day-ahead prices integration
+    custom_components/yellowgrid/   YellowGrid prosumer prices integration
+    README.md, LICENSE, *.html      docs at the zip root
+  (no __pycache__ / .pyc)
 
   The custom_components/ path is preserved, so a user can extract the zip
-  straight into their Home Assistant config folder and the integration lands
+  straight into their Home Assistant config folder and both integrations land
   in the right place.
 
-  Output: dist/opcom_ro-<version>.zip   (version read from manifest.json)
+  Output: dist/opcom_ro-<version>.zip   (version read from opcom_ro manifest)
 
 .EXAMPLE
   .\build-release.ps1
@@ -64,10 +66,14 @@ function Copy-Tree {
     }
 }
 
-# integration -> staging/custom_components/opcom_ro
+# integrations -> staging/custom_components/<domain>
 Copy-Tree `
   (Join-Path $repoRoot "custom_components\opcom_ro") `
   (Join-Path $stage "custom_components\opcom_ro")
+
+Copy-Tree `
+  (Join-Path $repoRoot "custom_components\yellowgrid") `
+  (Join-Path $stage "custom_components\yellowgrid")
 
 # root docs -> staging root
 foreach ($doc in @("README.md", "LICENSE", "opcom-guide.html", "ghid-instalare.html")) {

@@ -1,0 +1,55 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "YellowGrid România — Prețuri",
+        "description": "Lipește cookie-ul `userToken` de la YellowGrid și `deviceId`-ul instalației. Vezi ghidul de instalare pentru cum să le copiezi din browser. Cookie-ul se reînnoiește singur după configurare.",
+        "data": {
+          "user_token": "Cookie userToken",
+          "device_id": "ID instalație (device)",
+          "refresh_interval": "Interval reîmprospătare (minute)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-autentificare YellowGrid",
+        "description": "Token-ul de sesiune YellowGrid a expirat. Conectează-te pe yellowgrid.ro în browser, copiază un cookie `userToken` proaspăt și lipește-l mai jos. Instalație: {device_id}",
+        "data": {
+          "user_token": "Cookie userToken nou"
+        }
+      }
+    },
+    "error": {
+      "missing_fields": "Sunt obligatorii și cookie-ul userToken și ID-ul instalației.",
+      "invalid_token": "Autentificare eșuată. Copiază cookie-ul dintr-o sesiune proaspătă yellowgrid.ro (Application → Cookies → userToken).",
+      "cannot_connect": "Nu am putut contacta YellowGrid. Verifică conexiunea și reîncearcă."
+    },
+    "abort": {
+      "reauth_successful": "Token-ul YellowGrid a fost actualizat cu succes."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opțiuni YellowGrid",
+        "data": {
+          "device_id": "ID instalație (device)",
+          "refresh_interval": "Interval reîmprospătare (minute)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current_import_price": { "name": "Preț import acum" },
+      "current_export_price": { "name": "Preț export acum" },
+      "current_interval": { "name": "Interval curent" },
+      "today_import_energy": { "name": "Importat azi" },
+      "today_export_energy": { "name": "Exportat azi" },
+      "today_earnings": { "name": "Încasări azi" },
+      "today_savings": { "name": "Economii azi" }
+    },
+    "button": {
+      "refresh_now": { "name": "Reîmprospătează acum" }
+    }
+  }
+}

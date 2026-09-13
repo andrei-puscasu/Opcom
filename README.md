@@ -180,3 +180,131 @@ python -c "from custom_components.opcom_ro.api import fetch_day_sync; \
 
 MIT — see [LICENSE](LICENSE). Data is © OPCOM; this integration only reads
 their public export endpoint.
+
+---
+
+# YellowGrid Romania Prices (Home Assistant)
+
+A second integration in the same repository, `custom_components/yellowgrid/`,
+that brings **your actual prosumer import/export prices** from
+[yellowgrid.ro](https://www.yellowgrid.ro/) into Home Assistant — per
+15-minute interval, for the current day.
+
+## Why a separate integration
+
+OPCOM gives you the **wholesale** day-ahead price (lei/MWh). YellowGrid gives
+you the **personalised retail prices you actually pay and earn** (lei/kWh):
+
+* **Import price** — what you pay to consume from the grid. This is a **flat
+  retail tariff** (~1.31 lei/kWh) and does *not* move with the wholesale
+  market, so the OPCOM "cheap hours" do not change what you pay to import.
+* **Export price** — what you earn for injecting surplus PV. This *does* vary
+  through the day (roughly `0.5 × PZU + 0.4 lei/kWh`) and is the price that
+  matters for export / battery optimisation.
+
+These prices are account-specific and only available behind your authenticated
+YellowGrid portal, so this integration reads them from there.
+
+## What you need (one-time)
+
+Two values copied from your YellowGrid portal:
+
+1. **`userToken`** — your session cookie.
+2. **`deviceId`** — your plant UUID.
+
+How to copy them (any Chromium browser, e.g. Chrome/Edge):
+
+1. Log in to <https://www.yellowgrid.ro/> normally (phone + SMS).
+2. Open the dashboard so a plant is loaded.
+3. Open DevTools (**F12**) → **Application** tab → **Storage → Cookies →
+   `https://www.yellowgrid.ro`**.
+4. Find the cookie named **`userToken`** → copy its **Value** (a long
+   URL-encoded string ending in `%3D%3D`). That is your `userToken`.
+5. For the `deviceId`: in DevTools go to the **Network** tab, reload the
+   dashboard, click any request whose URL contains `earnings?deviceId=` (or
+   `summary?deviceId=`). Copy the `deviceId` value from the URL — it is a UUID
+   like `766d210c-4a2d-4197-a889-362957da5be2`.
+
+Paste both into the integration's setup form. That's the only manual step.
+
+## How authentication stays alive
+
+YellowGrid's login is gated by a Cloudflare **Turnstile** captcha and **SMS
+OTP**, so Home Assistant cannot log in on its own — you paste the cookie once
+instead. Once set up, the session **renews itself automatically**: every data
+fetch returns a fresh `userToken` via `Set-Cookie` (a sliding session), which
+the integration captures and persists. You never need to re-paste under normal
+use, and logging into the YellowGrid website on your computer does **not**
+invalidate Home Assistant's session (concurrent sessions are allowed).
+
+If the token ever does expire (a 401), the integration raises a re-auth
+prompt: paste a fresh `userToken` and it continues. A **Refresh now** button
+forces an immediate fetch for testing.
+
+> For a permanently maintenance-free setup, email
+> <mailto:office@yellowgrid.ro> and ask for an official API key — that removes
+> the cookie/Turnstile dependency entirely.
+
+## Setup
+
+1. Install the repository via HACS (same repo as OPCOM) or copy
+   `custom_components/yellowgrid/` into your `custom_components/` folder.
+2. Restart Home Assistant.
+3. **Settings → Devices & Services → Add integration** → search
+   **YellowGrid**.
+4. Paste the **`userToken` cookie** and **`deviceId`**, set the refresh
+   interval (default 15 min), and submit. The integration runs a live test
+   fetch to verify the token before saving.
+
+## Entities
+
+A single **YellowGrid** device is created per plant.
+
+**Sensors**
+
+| Entity | State | Useful attributes |
+|---|---|---|
+| Import price now | current interval import price (lei/kWh) | `interval_start/end`, `import_prices` + `export_prices` (full 96-point day curve) |
+| Export price now | current interval export price (lei/kWh) | same full curve |
+| Current interval | 1–96 | `interval_start/end` |
+| Imported today | kWh (total) | `delivery_day` |
+| Exported today | kWh (total) | `delivery_day` |
+| Earnings today | RON (lei, total) | `delivery_day` |
+| Savings today | RON (lei, total) | `delivery_day` |
+
+**Button**
+
+| Entity | Action |
+|---|---|
+| Refresh now | force an immediate earnings fetch |
+
+### Plot the price curve (ApexCharts card)
+
+```yaml
+type: custom:apexcharts-card
+header:
+  show: true
+  title: YellowGrid preturi astazi
+series:
+  - entity: sensor.yellowgrid_current_export_price
+    attribute: export_prices
+    type: column
+    name: Export (lei/kWh)
+  - entity: sensor.yellowgrid_current_import_price
+    attribute: import_prices
+    type: column
+    name: Import (lei/kWh)
+```
+
+## Notes
+
+* All interval math uses **Europe/Bucharest** so "current interval" matches the
+  Romanian delivery day regardless of your HA server's timezone.
+* The `userToken` is a real credential. It is stored in Home Assistant's
+  encrypted-on-disk config entry storage and is **never** included in
+  diagnostics downloads or logs.
+* Prices are in **lei/kWh** (energy totals in **kWh**, earnings/savings in
+  **RON**), as returned by YellowGrid.
+* The integration depends on `curl_cffi` (already required by the OPCOM
+  integration) so it presents the same Chrome TLS fingerprint to YellowGrid's
+  Cloudflare front-end.

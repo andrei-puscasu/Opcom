@@ -1,0 +1,55 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "YellowGrid Romania Prices",
+        "description": "Paste your YellowGrid `userToken` cookie and plant `deviceId`. See the install guide for how to copy them from your browser. The token renews itself automatically once set up.",
+        "data": {
+          "user_token": "userToken cookie",
+          "device_id": "Device / plant ID",
+          "refresh_interval": "Refresh interval (minutes)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate YellowGrid",
+        "description": "Your YellowGrid session token has expired. Log in to yellowgrid.ro in your browser, copy a fresh `userToken` cookie, and paste it below. Device: {device_id}",
+        "data": {
+          "user_token": "New userToken cookie"
+        }
+      }
+    },
+    "error": {
+      "missing_fields": "Both the userToken cookie and the device ID are required.",
+      "invalid_token": "Authentication failed. Copy the cookie from a fresh yellowgrid.ro login (Application → Cookies → userToken).",
+      "cannot_connect": "Could not reach YellowGrid. Check your network and try again."
+    },
+    "abort": {
+      "reauth_successful": "YellowGrid token updated successfully."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "YellowGrid options",
+        "data": {
+          "device_id": "Device / plant ID",
+          "refresh_interval": "Refresh interval (minutes)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current_import_price": { "name": "Import price now" },
+      "current_export_price": { "name": "Export price now" },
+      "current_interval": { "name": "Current interval" },
+      "today_import_energy": { "name": "Imported today" },
+      "today_export_energy": { "name": "Exported today" },
+      "today_earnings": { "name": "Earnings today" },
+      "today_savings": { "name": "Savings today" }
+    },
+    "button": {
+      "refresh_now": { "name": "Refresh now" }
+    }
+  }
+}

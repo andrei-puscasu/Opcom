@@ -421,8 +421,89 @@ series:
     </details>
   </section>
 
+  <section id="yellowgrid">
+    <h2>YellowGrid — your actual prosumer prices</h2>
+    <p>OPCOM shows the <strong>wholesale</strong> price the market trades at. As a prosumer you pay and earn something different: your <strong>retail import price</strong> (flat, ~1.31&nbsp;lei/kWh — it barely moves with the market) and your <strong>export price</strong> (which does vary through the day). Those personalised prices live behind your account on <a href="https://www.yellowgrid.ro/" target="_blank" rel="noopener">yellowgrid.ro</a>, and this repository ships a second integration — <strong>YellowGrid Romania Prices</strong> — to bring them into Home Assistant, one value per 15-minute slice of today.</p>
+
+    <div class="callout">
+      <p class="t">Why the OPCOM &laquo;cheap hours&raquo; don't lower your bill</p>
+      <p>Your import price is a flat retail tariff. It doesn't drop at night or spike at peak — so running the washing machine at 3&nbsp;am costs you the same per kWh as at 6&nbsp;pm. Where the market price <em>does</em> matter to you is the <strong>export</strong> side: what you earn for the surplus your panels push back. That's the curve this integration shows.</p>
+    </div>
+
+    <p class="group-label">What you'll copy from your portal (one time)</p>
+    <p>Two values — a <strong>session cookie</strong> and your <strong>plant ID</strong>. Home Assistant can't log in for you (the login has a Cloudflare captcha + SMS code that only a human passes), so you paste these once instead.</p>
+
+    <ol class="steps">
+      <li>
+        <p class="step-title">Log in to YellowGrid on your computer</p>
+        <p>Open <a href="https://www.yellowgrid.ro/" target="_blank" rel="noopener">yellowgrid.ro</a>, sign in normally (phone + SMS). Stay on the dashboard so a plant is loaded.</p>
+      </li>
+      <li>
+        <p class="step-title">Open the browser's DevTools</p>
+        <p>Press <span class="kbd">F12</span> (Chrome, Edge, Brave, Firefox all work). A panel opens — that's the developer view of the page.</p>
+      </li>
+      <li>
+        <p class="step-title">Grab the <span class="kbd">userToken</span> cookie</p>
+        <p>Go to the <strong>Application</strong> tab (Firefox: <strong>Storage</strong>). On the left, unfold <strong>Storage → Cookies → <span class="kbd">https://www.yellowgrid.ro</span></strong>. Find the row named <strong>userToken</strong>. Double-click its <strong>Value</strong> cell and copy it — it's a long URL-encoded string ending in <span class="kbd">%3D%3D</span>. That's your token.</p>
+      </li>
+      <li>
+        <p class="step-title">Grab the <span class="kbd">deviceId</span></p>
+        <p>Switch to the <strong>Network</strong> tab, then reload the dashboard (<span class="kbd">F5</span>). In the request list, find one whose URL contains <span class="kbd">earnings?deviceId=</span> (or <span class="kbd">summary?deviceId=</span>). Click it; in the <strong>Headers</strong> pane the URL shows <span class="kbd">deviceId=766d210c-4a2d-4197-a889-362957da5be2</span> — that UUID is your plant's <strong>deviceId</strong>. Copy it.</p>
+      </li>
+      <li>
+        <p class="step-title">Paste both into Home Assistant</p>
+        <p>Settings → <strong>Devices &amp; Services</strong> → <strong>Add integration</strong> → search <strong>YellowGrid</strong>. Paste the <span class="kbd">userToken</span> cookie and the <span class="kbd">deviceId</span>, set a refresh interval (15&nbsp;min is fine), submit. The integration does a live test fetch — if it passes, you're in.</p>
+      </li>
+    </ol>
+
+    <div class="callout">
+      <p class="t">That's the only manual step — here's why it lasts</p>
+      <p>Every data fetch the integration makes comes back with a <em>fresh</em> <span class="kbd">userToken</span> attached (YellowGrid uses a sliding session). The integration captures and stores that new token each time, so it keeps renewing itself. You never have to re-paste under normal use, and logging into the YellowGrid website on your phone or laptop <strong>does not</strong> kick Home Assistant out — multiple sessions are allowed at once.</p>
+    </div>
+
+    <p class="group-label">If the token ever does expire</p>
+    <p>Rare, but possible (e.g. a long HA downtime, or YellowGrid force-rotates sessions). The integration will notice the <span class="kbd">401</span> and raise a <strong>re-authenticate</strong> prompt right in Devices &amp; Services. Open it, copy a fresh <span class="kbd">userToken</span> from your browser (steps 1–3 above — your login is still valid, just grab the current cookie), paste it, done. There's also a <strong>Refresh now</strong> button on the device if you want to force a fetch to test.</p>
+
+    <p class="group-label">What you get</p>
+    <p>A single <strong>YellowGrid</strong> device per plant, with seven sensors and one button:</p>
+    <div class="cards">
+      <div class="card"><p class="name">Import price now <span class="chip info">lei/kWh</span></p><p>What you pay to consume this 15-min slice. Stays near-flat all day.</p></div>
+      <div class="card"><p class="name">Export price now <span class="chip info">lei/kWh</span></p><p>What you earn for injecting now. Varies through the day — the curve that matters.</p></div>
+      <div class="card"><p class="name">Current interval</p><p>1–96 — which 15-min slice we're in. Both price sensors carry the full day's curve as attributes, ready to chart.</p></div>
+      <div class="card"><p class="name">Imported / Exported today</p><p>kWh totals for the day so far.</p></div>
+      <div class="card"><p class="name">Earnings / Savings today</p><p>RON (lei) totals — what you've earned from exports and saved from self-consumption.</p></div>
+      <div class="card"><p class="name">Refresh now <span class="chip info">button</span></p><p>Forces an immediate earnings fetch — handy right after a re-auth or to test.</p></div>
+    </div>
+
+    <p class="group-label">Show both curves on your dashboard</p>
+    <p>With the <a href="https://github.com/RomRider/apexcharts-card" target="_blank" rel="noopener">ApexCharts card</a>:</p>
+    <pre>type: custom:apexcharts-card
+header:
+  show: true
+  title: YellowGrid prices today
+series:
+  - entity: sensor.yellowgrid_current_export_price
+    attribute: export_prices
+    type: column
+    name: Export (lei/kWh)
+  - entity: sensor.yellowgrid_current_import_price
+    attribute: import_prices
+    type: column
+    name: Import (lei/kWh)</pre>
+
+    <div class="callout">
+      <p class="t">Your cookie is a real password — treat it like one</p>
+      <p>The <span class="kbd">userToken</span> is literally your logged-in session. Don't paste it in chats, screenshots, or forum posts. Home Assistant stores it encrypted on disk and it is <strong>never</strong> included in diagnostics downloads or logs. If you ever share a diagnostics file, the token is not in it — only a yes/no that a token exists.</p>
+    </div>
+
+    <div class="callout">
+      <p class="t">Want this to be truly maintenance-free?</p>
+      <p>Email <a href="mailto:office@yellowgrid.ro">office@yellowgrid.ro</a> and ask for an official API key for Home Assistant. If enough prosumers ask, they may expose a proper token endpoint — at which point the cookie step disappears entirely.</p>
+    </div>
+  </section>
+
   <footer>
-    <p>OPCOM Romania Prices — free and open source (MIT). Reads only the public OPCOM export. Price data is © OPCOM. This guide is shareable — send the link to anyone you set up.</p>
+    <p>OPCOM &amp; YellowGrid Romania Prices — free and open source (MIT). OPCOM data is © OPCOM; YellowGrid prices come from your own authenticated account. This guide is shareable — send the link to anyone you set up.</p>
   </footer>
 
 </div>

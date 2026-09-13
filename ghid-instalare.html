@@ -282,8 +282,87 @@ actions:
     <details><summary>Pot schimba setările mai târziu?</summary><p>Da. Settings → Devices &amp; Services → OPCOM Romania → Configure. La salvare, integrarea se reîncarcă singură.</p></details>
   </section>
 
+  <section id="yellowgrid">
+    <h2>YellowGrid — prețurile tale reale de prosumator</h2>
+    <p>OPCOM arată prețul <strong>angro</strong> la care se tranzacționează pe piață. Ca prosumator, tu plătești și câștigi altceva: <strong>prețul de import</strong> (tarif retail plat, ~1,31&nbsp;lei/kWh — aproape nu se mișcă cu piața) și <strong>prețul de export</strong> (care variază pe parcursul zilei). Aceste prețuri personalizate stau în spatele contului tău pe <a href="https://www.yellowgrid.ro/" target="_blank" rel="noopener">yellowgrid.ro</a>, iar acest depozit include o a doua integrare — <strong>YellowGrid România — Prețuri</strong> — care le aduce în Home Assistant, câte o valoare pentru fiecare interval de 15 minute din ziua de azi.</p>
+
+    <div class="callout">
+      <p class="t">De ce &laquo;orele ieftine&raquo; OPCOM nu-ți scad factura</p>
+      <p>Prețul tău de import e un tarif retail plat. Nu scade noaptea și nu sare la vârf — deci să pui mașina de spălat la 3 noaptea te costă același lei/kWh ca la 6 seara. Unde prețul de piață contează cu adevărat pentru tine e la <strong>export</strong>: cât câștigi din surplusul injectat în rețea. Aia e curba pe care o arată integrarea asta.</p>
+    </div>
+
+    <p class="group-label">Ce copiezi din portalul tău (o singură dată)</p>
+    <p>Două valori — un <strong>cookie de sesiune</strong> și <strong>ID-ul instalației</strong>. Home Assistant nu se poate loga singur (login-ul are captcha Cloudflare + cod SMS pe care doar un om le trece), așa că lipești aceste valori o dată, manual.</p>
+
+    <ol class="steps">
+      <li>
+        <p class="step-title">Conectează-te la YellowGrid pe calculator</p>
+        <p>Deschide <a href="https://www.yellowgrid.ro/" target="_blank" rel="noopener">yellowgrid.ro</a>, loghează-te normal (telefon + SMS). Rămâi pe dashboard ca să fie o instalație încărcată.</p>
+      </li>
+      <li>
+        <p class="step-title">Deschide DevTools (uneltele browserului)</p>
+        <p>Apasă <span class="kbd">F12</span> (Chrome, Edge, Brave, Firefox — toate merg). Se deschide un panou cu &laquo;internals&raquo; paginii.</p>
+      </li>
+      <li>
+        <p class="step-title">Ia cookie-ul <span class="kbd">userToken</span></p>
+        <p>Mergi la tab-ul <strong>Application</strong> (la Firefox: <strong>Storage</strong>). În stânga, desfă <strong>Storage → Cookies → <span class="kbd">https://www.yellowgrid.ro</span></strong>. Caută rândul numit <strong>userToken</strong>. Dublu-click pe celula <strong>Value</strong> și copiaz-o — e un șir lung, codat URL, care se termină în <span class="kbd">%3D%3D</span>. Asta e token-ul tău.</p>
+      </li>
+      <li>
+        <p class="step-title">Ia <span class="kbd">deviceId</span></p>
+        <p>Treci la tab-ul <strong>Network</strong>, apoi reîncarcă dashboard-ul (<span class="kbd">F5</span>). În lista de cereri, găsește una cu URL-ul care conține <span class="kbd">earnings?deviceId=</span> (sau <span class="kbd">summary?deviceId=</span>). Dă click pe ea; în panoul <strong>Headers</strong>, URL-ul arată <span class="kbd">deviceId=766d210c-4a2d-4197-a889-362957da5be2</span> — acel UUID e <strong>deviceId</strong>-ul instalației tale. Copiază-l.</p>
+      </li>
+      <li>
+        <p class="step-title">Lipește ambele în Home Assistant</p>
+        <p>Settings → <strong>Devices &amp; Services</strong> → <strong>Add integration</strong> → caută <strong>YellowGrid</strong>. Lipește cookie-ul <span class="kbd">userToken</span> și <span class="kbd">deviceId</span>, alege un interval de reîmprospătare (15&nbsp;min e ok), apasă Submit. Integrarea face o cerere de test live — dacă trece, ești gata.</p>
+      </li>
+    </ol>
+
+    <div class="callout">
+      <p class="t">Asta e singurul pas manual — iată de ce ține</p>
+      <p>Fiecare cerere de date pe care o face integrarea se întoarce cu un <span class="kbd">userToken</span> <em>proaspăt</em> atașat (YellowGrid folosește sesiune alunecată). Integrarea prinde și salvează noul token de fiecare dată, deci se reînnoiește singură. Nu trebuie să relipești nimic în uz normal, iar logarea pe site-ul YellowGrid de pe telefon sau laptop <strong>nu</strong> dă afară Home Assistant — sesiuni multiple sunt permise simultan.</p>
+    </div>
+
+    <p class="group-label">Dacă token-ul expiră totuși</p>
+    <p>Rar, dar posibil (ex: HA oprit mult timp, sau YellowGrid rotește sesiunile forțat). Integrarea va vedea <span class="kbd">401</span> și va ridica o notificare de <strong>re-autentificare</strong> direct în Devices &amp; Services. Deschide-o, copiază un <span class="kbd">userToken</span> proaspăt din browser (pașii 1–3 de mai sus — login-ul tău încă e valabil, doar ia cookie-ul curent), lipește-l, gata. Există și un buton <strong>Reîmprospătează acum</strong> pe dispozitiv dacă vrei să forțezi o cerere de test.</p>
+
+    <p class="group-label">Ce primești în Home Assistant</p>
+    <p>Câte un dispozitiv <strong>YellowGrid</strong> pe instalație, cu șapte senzori și un buton:</p>
+    <p><strong>• Preț import acum</strong> (lei/kWh) — cât plătești să consumi în intervalul ăsta de 15 min. Aproape plat toată ziua.</p>
+    <p><strong>• Preț export acum</strong> (lei/kWh) — cât câștigi din injectare acum. Variază pe zi — curba care contează.</p>
+    <p><strong>• Interval curent</strong> — 1–96, în care felie de 15 min suntem. Ambii senzori de preț au curba completă a zilei ca atribute, gata de chart.</p>
+    <p><strong>• Importat / Exportat azi</strong> — totale kWh de până acum.</p>
+    <p><strong>• Încasări / Economii azi</strong> — totale RON (lei): ce ai câștigat din export și ce ai economisit din auto-consum.</p>
+    <p><strong>• Reîmprospătează acum</strong> (buton) — forțează o cerere imediată, util după re-auth sau pentru test.</p>
+
+    <p class="group-label">Afișează ambele curbe pe dashboard</p>
+    <p>Cu cardul <a href="https://github.com/RomRider/apexcharts-card" target="_blank" rel="noopener">ApexCharts</a>:</p>
+    <pre>type: custom:apexcharts-card
+header:
+  show: true
+  title: YellowGrid preturi astazi
+series:
+  - entity: sensor.yellowgrid_current_export_price
+    attribute: export_prices
+    type: column
+    name: Export (lei/kWh)
+  - entity: sensor.yellowgrid_current_import_price
+    attribute: import_prices
+    type: column
+    name: Import (lei/kWh)</pre>
+
+    <div class="warn">
+      <p class="t">Cookie-ul tău e o parolă adevărată — tratează-l ca atare</p>
+      <p><span class="kbd">userToken</span> e literal sesiunea ta logată. Nu-l lipi în chat-uri, screenshot-uri sau forumuri. Home Assistant îl ține criptat pe disc și <strong>niciodată</strong> nu-l include în fișierele de diagnostic sau în loguri. Dacă trimii un diagnostic, token-ul nu e în el — doar un da/nu că există un token.</p>
+    </div>
+
+    <div class="callout">
+      <p class="t">Vrei să fie cu adevărat fără mentenanță?</p>
+      <p>Trimite un mail la <a href="mailto:office@yellowgrid.ro">office@yellowgrid.ro</a> și cere o cheie oficială de API pentru Home Assistant. Dacă destui prosumatori cer, poate expun un endpoint de token oficial — la care pasul cu cookie-ul dispare cu totul.</p>
+    </div>
+  </section>
+
   <footer>
-    <p>OPCOM Romania Prices — liber și open source (MIT). Citește doar exportul public OPCOM. Datele de preț sunt © OPCOM. Acest ghid se poate partaja — trimite linkul oricui instalezi.</p>
+    <p>OPCOM &amp; YellowGrid România Prices — liber și open source (MIT). Datele OPCOM sunt © OPCOM; prețurile YellowGrid vin din contul tău autentificat. Acest ghid se poate partaja — trimite linkul oricui instalezi.</p>
   </footer>
 
 </div>
