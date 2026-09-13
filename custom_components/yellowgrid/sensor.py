@@ -31,7 +31,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CURRENCY_RON, UnitOfEnergy
+from homeassistant.const import UnitOfEnergy
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -41,6 +41,10 @@ from .coordinator import YellowGridCoordinator
 from .models import YGEarnings, YGInterval
 
 _PRICE_UNIT = "lei/kWh"
+# Currency code for the MONETARY device class. Defined locally because the
+# ``CURRENCY_RON`` constant was removed from ``homeassistant.const`` in recent
+# Home Assistant versions; the raw ISO 4217 string is accepted directly.
+_CURRENCY_RON = "RON"
 
 
 @dataclass
@@ -100,7 +104,7 @@ SENSORS: tuple[YGSensorDescription, ...] = (
         kind="today_earnings",
         device_class=SensorDeviceClass.MONETARY,
         state_class=SensorStateClass.TOTAL,
-        native_unit_of_measurement=CURRENCY_RON,
+        native_unit_of_measurement=_CURRENCY_RON,
         icon="mdi:cash-check",
         suggested_display_precision=2,
     ),
@@ -110,7 +114,7 @@ SENSORS: tuple[YGSensorDescription, ...] = (
         kind="today_savings",
         device_class=SensorDeviceClass.MONETARY,
         state_class=SensorStateClass.TOTAL,
-        native_unit_of_measurement=CURRENCY_RON,
+        native_unit_of_measurement=_CURRENCY_RON,
         icon="mdi:piggy-bank",
         suggested_display_precision=2,
     ),
