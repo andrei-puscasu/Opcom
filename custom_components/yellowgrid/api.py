@@ -48,6 +48,19 @@ class YellowGridApiError(Exception):
     """A non-auth transport/HTTP error from the YellowGrid API."""
 
 
+# YellowGrid numbers the ``interval`` field of its price rows one hour (four
+# 15-minute slots) ahead of the real Europe/Bucharest wall-clock the price
+# belongs to. Verified empirically against the OPCOM PZU day-ahead curve: the
+# exportPrice curve correlates at r=+1.000 with OPCOM[i] vs YG[i+4] for both a
+# summer day (EEST) and winter days (EET), so the offset is a constant +4
+# year-round, not a DST artifact. Re-indexing by -4 at parse time aligns each
+# price with its real delivery slot (raw interval 5 -> real 00:00, raw 81 ->
+# real 19:00 evening peak, ...). The first four raw intervals (real 23:00-23:45
+# of the *previous* day) are dropped, and the last four real slots of the day
+# (23:00-23:45) are not present in the day's own response.
+_PRICE_INTERVAL_OFFSET = 4
+
+
 def day_bounds_ms(day: date) -> tuple[int, int]:
     """Epoch-ms [start, end) for a midnight-to-midnight day in Europe/Bucharest."""
     start = datetime.combine(day, datetime.min.time(), tzinfo=MARKET_TZ)
@@ -56,15 +69,24 @@ def day_bounds_ms(day: date) -> tuple[int, int]:
 
 
 def parse_earnings(payload: dict, delivery_day: date, device_id: str) -> YGEarnings:
-    """Parse the JSON earnings response into a :class:`YGEarnings`."""
+    """Parse the JSON earnings response into a :class:`YGEarnings`.
+
+    The YellowGrid ``interval`` field is re-indexed by ``-_PRICE_INTERVAL_OFFSET``
+    so that each interval's ``index`` is the real 1..96 Europe/Bucharest slot
+    the *price* applies to (see the constant's comment for the evidence).
+    """
     raw = payload.get("earningsList") or []
     intervals: list[YGInterval] = []
     for item in sorted(raw, key=lambda x: int(x.get("interval", 0))):
         try:
-            idx = int(item["interval"])
+            raw_idx = int(item["interval"])
         except (KeyError, TypeError, ValueError):
             continue
+        # Map the YellowGrid interval to the real wall-clock slot it prices.
+        idx = raw_idx - _PRICE_INTERVAL_OFFSET
         if idx < 1 or idx > 96:
+            # Raw intervals 1..4 price the previous day's 23:00-23:45 and are
+            # not part of this delivery day; raw indices past 96 do not occur.
             continue
         intervals.append(
             YGInterval(
