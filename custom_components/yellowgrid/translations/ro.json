@@ -46,7 +46,9 @@
       "today_import_energy": { "name": "Importat azi" },
       "today_export_energy": { "name": "Exportat azi" },
       "today_earnings": { "name": "Încasări azi" },
-      "today_savings": { "name": "Economii azi" }
+      "today_savings": { "name": "Economii azi" },
+      "today_export_price_max": { "name": "Preț export max azi" },
+      "today_export_price_min": { "name": "Preț export min azi" }
     },
     "button": {
       "refresh_now": { "name": "Reîmprospătează acum" }

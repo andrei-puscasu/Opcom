@@ -46,7 +46,9 @@
       "today_import_energy": { "name": "Imported today" },
       "today_export_energy": { "name": "Exported today" },
       "today_earnings": { "name": "Earnings today" },
-      "today_savings": { "name": "Savings today" }
+      "today_savings": { "name": "Savings today" },
+      "today_export_price_max": { "name": "Export price max today" },
+      "today_export_price_min": { "name": "Export price min today" }
     },
     "button": {
       "refresh_now": { "name": "Refresh now" }

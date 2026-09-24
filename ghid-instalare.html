@@ -326,12 +326,13 @@ actions:
     <p>Rar, dar posibil (ex: HA oprit mult timp, sau YellowGrid rotește sesiunile forțat). Integrarea va vedea <span class="kbd">401</span> și va ridica o notificare de <strong>re-autentificare</strong> direct în Devices &amp; Services. Deschide-o, copiază un <span class="kbd">userToken</span> proaspăt din browser (pașii 1–3 de mai sus — login-ul tău încă e valabil, doar ia cookie-ul curent), lipește-l, gata. Există și un buton <strong>Reîmprospătează acum</strong> pe dispozitiv dacă vrei să forțezi o cerere de test.</p>
 
     <p class="group-label">Ce primești în Home Assistant</p>
-    <p>Câte un dispozitiv <strong>YellowGrid</strong> pe instalație, cu șapte senzori și un buton:</p>
+    <p>Câte un dispozitiv <strong>YellowGrid</strong> pe instalație, cu nouă senzori și un buton:</p>
     <p><strong>• Preț import acum</strong> (lei/kWh) — cât plătești să consumi în intervalul ăsta de 15 min. Aproape plat toată ziua.</p>
     <p><strong>• Preț export acum</strong> (lei/kWh) — cât câștigi din injectare acum. Variază pe zi — curba care contează.</p>
     <p><strong>• Interval curent</strong> — 1–96, în care felie de 15 min suntem. Ambii senzori de preț au curba completă a zilei ca atribute, gata de chart.</p>
     <p><strong>• Importat / Exportat azi</strong> — totale kWh de până acum.</p>
     <p><strong>• Încasări / Economii azi</strong> — totale RON (lei): ce ai câștigat din export și ce ai economisit din auto-consum.</p>
+    <p><strong>• Preț export max / min azi</strong> (lei/kWh) — cel mai mare și cel mai mic preț de export al zilei, cu ora la care apar (atributul <code>extreme_at</code>) — util pentru sincronizarea bateriei.</p>
     <p><strong>• Reîmprospătează acum</strong> (buton) — forțează o cerere imediată, util după re-auth sau pentru test.</p>
 
     <p class="group-label">Afișează ambele curbe pe dashboard</p>

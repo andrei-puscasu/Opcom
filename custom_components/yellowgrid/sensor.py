@@ -118,6 +118,22 @@ SENSORS: tuple[YGSensorDescription, ...] = (
         icon="mdi:piggy-bank",
         suggested_display_precision=2,
     ),
+    YGSensorDescription(
+        key="today_export_price_max",
+        translation_key="today_export_price_max",
+        kind="today_export_price_max",
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:arrow-up-bold",
+        suggested_display_precision=4,
+    ),
+    YGSensorDescription(
+        key="today_export_price_min",
+        translation_key="today_export_price_min",
+        kind="today_export_price_min",
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:arrow-down-bold",
+        suggested_display_precision=4,
+    ),
 )
 
 
@@ -173,7 +189,12 @@ class YellowGridSensor(YellowGridEntity, SensorEntity):
         super().__init__(coordinator, entry)
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
         # Price sensors use lei/kWh; the rest set their unit via the description.
-        if description.kind in ("current_import_price", "current_export_price"):
+        if description.kind in (
+            "current_import_price",
+            "current_export_price",
+            "today_export_price_max",
+            "today_export_price_min",
+        ):
             self._attr_native_unit_of_measurement = _PRICE_UNIT
 
     # -- helpers ------------------------------------------------------------
@@ -193,10 +214,18 @@ class YellowGridSensor(YellowGridEntity, SensorEntity):
 
     @property
     def available(self) -> bool:
+        earnings = self._earnings
+        # Guard against stale cross-day cache: between midnight and the first
+        # successful poll of the new day (and during transient failures that
+        # keep the last good data), ``_last_earnings`` still belongs to
+        # yesterday. HA's DataUpdateCoordinator leaves ``last_update_success``
+        # True on UpdateFailed, so without this guard the "today" sensors would
+        # display yesterday's totals under today's labels.
         return (
             self.coordinator.last_update_success
-            and self._earnings is not None
-            and self._earnings.has_data
+            and earnings is not None
+            and earnings.has_data
+            and earnings.delivery_day == self.coordinator.today_date
         )
 
     # -- value / attributes -------------------------------------------------
@@ -224,6 +253,12 @@ class YellowGridSensor(YellowGridEntity, SensorEntity):
             return round(earnings.total_earnings, 2)
         if kind == "today_savings":
             return round(earnings.total_savings, 2)
+        if kind in ("today_export_price_max", "today_export_price_min"):
+            prices = [iv.export_price for iv in earnings.intervals]
+            if not prices:
+                return None
+            extreme = max(prices) if kind == "today_export_price_max" else min(prices)
+            return round(extreme, 4)
         return None
 
     @property
@@ -268,6 +303,25 @@ class YellowGridSensor(YellowGridEntity, SensorEntity):
             return {
                 "delivery_day": earnings.delivery_day.isoformat(),
                 "device_id": earnings.device_id,
+                "intervals": len(earnings.intervals),
+            }
+
+        if kind in ("today_export_price_max", "today_export_price_min"):
+            priced = [
+                (iv.export_price, iv.index) for iv in earnings.intervals
+            ]
+            if not priced:
+                return None
+            if kind == "today_export_price_max":
+                val, idx = max(priced, key=lambda t: t[0])
+            else:
+                val, idx = min(priced, key=lambda t: t[0])
+            start, _ = _interval_bounds(idx, earnings.delivery_day)
+            return {
+                "extreme_at": start.strftime("%H:%M"),
+                "extreme_interval_index": idx,
+                "extreme_price": round(val, 4),
+                "delivery_day": earnings.delivery_day.isoformat(),
                 "intervals": len(earnings.intervals),
             }
 

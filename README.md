@@ -271,6 +271,8 @@ A single **YellowGrid** device is created per plant.
 | Exported today | kWh (total) | `delivery_day` |
 | Earnings today | RON (lei, total) | `delivery_day` |
 | Savings today | RON (lei, total) | `delivery_day` |
+| Export price max today | highest export price of the day (lei/kWh) | `extreme_at` (HH:MM), `extreme_interval_index`, `delivery_day` |
+| Export price min today | lowest export price of the day (lei/kWh) | `extreme_at` (HH:MM), `extreme_interval_index`, `delivery_day` |
 
 **Button**
 

@@ -465,13 +465,14 @@ series:
     <p>Rare, but possible (e.g. a long HA downtime, or YellowGrid force-rotates sessions). The integration will notice the <span class="kbd">401</span> and raise a <strong>re-authenticate</strong> prompt right in Devices &amp; Services. Open it, copy a fresh <span class="kbd">userToken</span> from your browser (steps 1–3 above — your login is still valid, just grab the current cookie), paste it, done. There's also a <strong>Refresh now</strong> button on the device if you want to force a fetch to test.</p>
 
     <p class="group-label">What you get</p>
-    <p>A single <strong>YellowGrid</strong> device per plant, with seven sensors and one button:</p>
+    <p>A single <strong>YellowGrid</strong> device per plant, with nine sensors and one button:</p>
     <div class="cards">
       <div class="card"><p class="name">Import price now <span class="chip info">lei/kWh</span></p><p>What you pay to consume this 15-min slice. Stays near-flat all day.</p></div>
       <div class="card"><p class="name">Export price now <span class="chip info">lei/kWh</span></p><p>What you earn for injecting now. Varies through the day — the curve that matters.</p></div>
       <div class="card"><p class="name">Current interval</p><p>1–96 — which 15-min slice we're in. Both price sensors carry the full day's curve as attributes, ready to chart.</p></div>
       <div class="card"><p class="name">Imported / Exported today</p><p>kWh totals for the day so far.</p></div>
       <div class="card"><p class="name">Earnings / Savings today</p><p>RON (lei) totals — what you've earned from exports and saved from self-consumption.</p></div>
+      <div class="card"><p class="name">Export price max / min today <span class="chip info">lei/kWh</span></p><p>Highest and lowest export price of the day, with the time they occur (<code>extreme_at</code> attribute) — handy for battery timing.</p></div>
       <div class="card"><p class="name">Refresh now <span class="chip info">button</span></p><p>Forces an immediate earnings fetch — handy right after a re-auth or to test.</p></div>
     </div>
 
